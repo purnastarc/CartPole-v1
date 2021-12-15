@@ -127,19 +127,4 @@ for epoch in range(EPOCHS):
         print(f"{epoch}: Points reached: {points} - epsilon: {epsilon} - Best: {best_so_far}")
         
 
-model.save("mask_detector.model", save_format="h5")
-
-
-# Playing the game
-observation = env.reset()
-for counter in range(300):
-    env.render()
-    
-    action = np.argmax(model.predict(observation.reshape([1,4])))
-     
-    observation, reward, done, info = env.step(action) 
-    
-    if done:
-        print(f"done")
-        break
-env.close()
+model.save("CartPole-v1_model", save_format="h5")
