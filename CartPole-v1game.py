@@ -13,7 +13,7 @@ from tensorflow.keras.models import clone_model,load_model
 env_name = 'CartPole-v1'
 env = gym.make(env_name)  # create the environment
 
-saved_model=load_model("CartPole.h5")
+saved_model=load_model("CartPole-v1_model.h5")
 
 observation = env.reset()
 Score=0
