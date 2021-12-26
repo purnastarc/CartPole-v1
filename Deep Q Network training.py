@@ -14,6 +14,7 @@ env = gym.make(env_name)
 num_actions = env.action_space.n
 num_observations = env.observation_space.shape[0]
 
+
 # model construction
 model = Sequential()
 
@@ -28,6 +29,7 @@ model.add(Dense(num_actions))
 model.add(Activation('linear'))
 
 target_model = clone_model(model)
+
 
 # learning parameters
 EPOCHS = 400
@@ -52,27 +54,17 @@ update_target_model = 10
 
 # experince replay buffer function
 def replay(replay_buffer, batch_size, model, target_model):
-    
     if len(replay_buffer) < batch_size: 
-        return
-    
-    samples = random.sample(replay_buffer, batch_size)  
-    
-    
+        return 
+    samples = random.sample(replay_buffer, batch_size) 
     target_batch = []  
-    
     zipped_samples = list(zip(*samples))  
     states, actions, rewards, new_states, dones = zipped_samples  
-    
-    targets = target_model.predict(np.array(states))
-    
-   
+    targets = target_model.predict(np.array(states)) 
     q_values = model.predict(np.array(new_states))  
     
-    for i in range(batch_size):  
-       
-        q_value = max(q_values[i][0])  
-        
+    for i in range(batch_size):         
+        q_value = max(q_values[i][0])    
         target = targets[i].copy()  
         if dones[i]:
             target[0][actions[i]] = rewards[i]
@@ -87,39 +79,30 @@ def replay(replay_buffer, batch_size, model, target_model):
 def update_model_handler(epoch, update_target_model, model, target_model):
     if epoch > 0 and epoch % update_target_model == 0:
         target_model.set_weights(model.get_weights())
+        
 
  # compile the model
 model.compile(loss='mse', optimizer=Adam(learning_rate=LEARNING_RATE))
+
 
 # training the Q-network model
 best_so_far = 0
 for epoch in range(EPOCHS):
     observation = env.reset() 
-    
-    
     observation = observation.reshape([1, 4])  
-    done = False  
-    
+    done = False   
     points = 0
-    while not done: 
-        
-        # Select action acc. to strategy
+    
+    while not done:
         action = epsilon_greedy_action_selection(model, epsilon, observation)
-        
-        # Perform action and get next state
         next_observation, reward, done, info = env.step(action)  
         next_observation = next_observation.reshape([1, 4])
         replay_buffer.append((observation, action, reward, next_observation, done))
         observation = next_observation 
-        points+=1
-
-      
+        points+=1 
         replay(replay_buffer, 32, model, target_model)
-
-    
+        
     epsilon *= EPSILON_REDUCE 
-    
-    
     update_model_handler(epoch, update_target_model, model, target_model)
     
     if points > best_so_far:
