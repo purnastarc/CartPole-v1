@@ -11,11 +11,10 @@ from tensorflow.keras.models import clone_model,load_model
 
 env_name = 'CartPole-v1'
 env = gym.make(env_name)
-
 num_actions = env.action_space.n
 num_observations = env.observation_space.shape[0]
-print(f"There are {num_actions} possible actions and {num_observations} observations")
 
+# model construction
 model = Sequential()
 
 model.add(Dense(16, input_shape=(1, num_observations)))
@@ -28,16 +27,15 @@ model.add(Activation('relu'))
 model.add(Dense(num_actions))
 model.add(Activation('linear'))
 
-print(model.summary())
-
 target_model = clone_model(model)
 
+# learning parameters
 EPOCHS = 400
-
 epsilon = 1.0
 EPSILON_REDUCE = 0.995  
 LEARNING_RATE = 0.001 
 GAMMA = 0.95
+
 
 # stochastic policy
 def epsilon_greedy_action_selection(model, epsilon, observation):
@@ -51,7 +49,8 @@ def epsilon_greedy_action_selection(model, epsilon, observation):
 replay_buffer = deque(maxlen=20000)
 update_target_model = 10
 
-# Experince replay buffer function
+
+# experince replay buffer function
 def replay(replay_buffer, batch_size, model, target_model):
     
     if len(replay_buffer) < batch_size: 
@@ -82,12 +81,14 @@ def replay(replay_buffer, batch_size, model, target_model):
         target_batch.append(target)
 
     model.fit(np.array(states), np.array(target_batch), epochs=1, verbose=0)  
+    
 
- # Copying the weights from Q-network to Target-network
+ # copying the weights from Q-network to Target-network
 def update_model_handler(epoch, update_target_model, model, target_model):
     if epoch > 0 and epoch % update_target_model == 0:
         target_model.set_weights(model.get_weights())
 
+ # compile the model
 model.compile(loss='mse', optimizer=Adam(learning_rate=LEARNING_RATE))
 
 # training the Q-network model
@@ -125,6 +126,7 @@ for epoch in range(EPOCHS):
         best_so_far = points
     if epoch %25 == 0:
         print(f"{epoch}: Points reached: {points} - epsilon: {epsilon} - Best: {best_so_far}")
+        
         
 # save the model
 model.save("CartPole-v1_model", save_format="h5")
