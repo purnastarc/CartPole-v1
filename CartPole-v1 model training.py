@@ -1,6 +1,5 @@
 from collections import deque
 import random
-
 import numpy as np
 import gym  
 from tensorflow.keras.models import Sequential  
@@ -8,6 +7,7 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Activation 
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import clone_model,load_model
+
 
 env_name = 'CartPole-v1'
 env = gym.make(env_name)
@@ -126,5 +126,5 @@ for epoch in range(EPOCHS):
     if epoch %25 == 0:
         print(f"{epoch}: Points reached: {points} - epsilon: {epsilon} - Best: {best_so_far}")
         
-
+# save the model
 model.save("CartPole-v1_model", save_format="h5")
