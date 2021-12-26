@@ -14,9 +14,7 @@ observation = env.reset()
 for counter in range(300):
     env.render()
     time.sleep(0.05)
-   
     action = np.argmax(saved_model.predict(observation.reshape([1,4])))
-  
     observation, reward, done, info = env.step(action)
  
     if done:
